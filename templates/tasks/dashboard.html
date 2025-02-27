@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Task Management System{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+                    <p class="text-muted mb-0">Here's an overview of your tasks and workspaces.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow stats-card pending">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Tasks</h5>
+                    <h2 class="mb-0">{{ task_stats.pending }}</h2>
+                    <p class="text-muted mb-0">Tasks awaiting action</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow stats-card in-progress">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <h2 class="mb-0">{{ task_stats.in_progress }}</h2>
+                    <p class="text-muted mb-0">Tasks being worked on</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow stats-card completed">
+                <div class="card-body">
+                    <h5 class="card-title">Completed</h5>
+                    <h2 class="mb-0">{{ task_stats.completed }}</h2>
+                    <p class="text-muted mb-0">Tasks finished</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tasks Section -->
+        <div class="col-md-8">
+            <!-- Pending Tasks -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Pending Tasks</h4>
+                    <div class="btn-group">
+                        <a href="{% url 'task_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Task
+                        </a>
+                        <a href="{% url 'workspace_create' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-folder-plus"></i> New Workspace
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if pending_tasks %}
+                    <div class="list-group">
+                        {% for task in pending_tasks %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h5 class="mb-1">
+                                    <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                        {{ task.title }}
+                                    </a>
+                                </h5>
+                                <span class="badge bg-{{ task.get_priority_display|lower }}">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Due: {{ task.due_date|date:"M d, Y" }}
+                                </small>
+                                <div class="btn-group">
+                                    {% if task.status == 'PENDING' %}
+                                    <button class="btn btn-outline-primary btn-sm task-status-btn" 
+                                            data-task-id="{{ task.id }}"
+                                            data-status="IN_PROGRESS"
+                                            data-bs-toggle="tooltip"
+                                            title="Start working on this task">
+                                        <i class="fas fa-play me-1"></i>Start Task
+                                    </button>
+                                    {% elif task.status == 'IN_PROGRESS' %}
+                                    <button class="btn btn-success btn-sm task-status-btn"
+                                            data-task-id="{{ task.id }}"
+                                            data-status="COMPLETED"
+                                            data-bs-toggle="tooltip"
+                                            title="Mark task as completed">
+                                        <i class="fas fa-check me-1"></i>Complete
+                                    </button>
+                                    <button class="btn btn-warning btn-sm task-status-btn"
+                                            data-task-id="{{ task.id }}"
+                                            data-status="PENDING"
+                                            data-bs-toggle="tooltip"
+                                            title="Move task back to pending">
+                                        <i class="fas fa-pause me-1"></i>Pause
+                                    </button>
+                                    {% endif %}
+                                    <a href="{% url 'task_detail' task.pk %}" 
+                                       class="btn btn-outline-secondary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="View task details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No pending tasks.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- In Progress Tasks -->
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">In Progress Tasks</h4>
+                </div>
+                <div class="card-body">
+                    {% if in_progress_tasks %}
+                    <div class="list-group">
+                        {% for task in in_progress_tasks %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <h5 class="mb-1">
+                                    <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                        {{ task.title }}
+                                    </a>
+                                </h5>
+                                <span class="badge bg-{{ task.get_priority_display|lower }}">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    Due: {{ task.due_date|date:"M d, Y" }}
+                                </small>
+                                <div class="btn-group">
+                                    <button class="btn btn-success btn-sm task-status-btn"
+                                            data-task-id="{{ task.id }}"
+                                            data-status="COMPLETED"
+                                            data-bs-toggle="tooltip"
+                                            title="Mark task as completed">
+                                        <i class="fas fa-check me-1"></i>Complete
+                                    </button>
+                                    <button class="btn btn-warning btn-sm task-status-btn"
+                                            data-task-id="{{ task.id }}"
+                                            data-status="PENDING"
+                                            data-bs-toggle="tooltip"
+                                            title="Move task back to pending">
+                                        <i class="fas fa-pause me-1"></i>Pause
+                                    </button>
+                                    <a href="{% url 'task_detail' task.pk %}" 
+                                       class="btn btn-outline-secondary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="View task details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No tasks in progress.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspaces Section -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">My Workspaces</h4>
+                    <a href="{% url 'workspace_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> New
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if workspaces %}
+                    <div class="list-group">
+                        {% for workspace in workspaces %}
+                        <a href="{% url 'workspace_detail' workspace.pk %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ workspace.name }}</h5>
+                                {% if workspace.owner == user %}
+                                <small class="badge bg-success">Owner</small>
+                                {% else %}
+                                <small class="badge bg-info">Member</small>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1">{{ workspace.description|truncatewords:20 }}</p>
+                            <small class="text-muted">
+                                {{ workspace.tasks.count }} tasks
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No workspaces available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Handle task status updates
+    const statusButtons = document.querySelectorAll('.task-status-btn');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    statusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.dataset.taskId;
+            const newStatus = this.dataset.status;
+            const button = this;
+            
+            // Disable button while processing
+            button.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('status', newStatus);
+            
+            fetch(`/api/task-status-update/${taskId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    // Show success message
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-success position-fixed top-0 end-0 m-3';
+                    toast.style.zIndex = '1050';
+                    toast.textContent = `Task status updated to ${data.new_status}`;
+                    document.body.appendChild(toast);
+                    
+                    // Remove toast after 3 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                    
+                    // Reload the page to show updated task lists
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    throw new Error(data.message || 'Failed to update task status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-danger position-fixed top-0 end-0 m-3';
+                toast.style.zIndex = '1050';
+                toast.textContent = error.message || 'Failed to update task status. Please try again.';
+                document.body.appendChild(toast);
+                
+                // Remove toast after 3 seconds
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+                
+                // Re-enable button
+                button.disabled = false;
+            });
+        });
+    });
+
+    // Update notification count
+    function updateNotificationCount() {
+        fetch('/api/notifications/unread-count/')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('notification-count');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Update notification count every minute
+    updateNotificationCount();
+    setInterval(updateNotificationCount, 60000);
+});
+</script>
+{% endblock %}
+{% endblock %}

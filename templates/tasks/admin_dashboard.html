@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Task Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Admin Dashboard</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2>{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tasks</h5>
+                    <h2>{{ total_tasks }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Workspaces</h5>
+                    <h2>{{ total_workspaces }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-4">Task Statistics</h3>
+    <ul>
+        {% for status, count in task_stats.items %}
+        <li>{{ status }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3 class="mt-4">Recent Activities</h3>
+    <ul>
+        {% for task in recent_tasks %}
+        <li>{{ task.title }} - Assigned to {{ task.assigned_to.username }} - Status: {{ task.get_status_display }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

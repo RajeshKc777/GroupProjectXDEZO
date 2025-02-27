@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - {{ profile_user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Profile Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">{{ profile_user.get_full_name }}</h2>
+                            <p class="text-muted mb-0">
+                                <span class="badge bg-primary">{{ profile_user.get_role_display }}</span>
+                                <span class="ms-2">{{ profile_user.email }}</span>
+                            </p>
+                        </div>
+                        <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary">
+                            Edit Profile
+                        </a>
+                    </div>
+                    {% if profile_user.bio %}
+                    <hr>
+                    <p class="mb-0">{{ profile_user.bio }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks and Workspaces -->
+    <div class="row">
+        <!-- Tasks Section -->
+        <div class="col-md-8">
+            <!-- Assigned Tasks -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">Assigned Tasks</h4>
+                </div>
+                <div class="card-body">
+                    {% if assigned_tasks %}
+                    <div class="list-group">
+                        {% for task in assigned_tasks %}
+                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ task.title }}</h5>
+                                <small class="text-muted">Due: {{ task.due_date|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                            <small>
+                                <span class="badge bg-{{ task.get_status_display|lower }}">
+                                    {{ task.get_status_display }}
+                                </span>
+                                <span class="badge bg-{{ task.get_priority_display|lower }}">
+                                    {{ task.get_priority_display }} Priority
+                                </span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No tasks assigned.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Created Tasks -->
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">Created Tasks</h4>
+                </div>
+                <div class="card-body">
+                    {% if created_tasks %}
+                    <div class="list-group">
+                        {% for task in created_tasks %}
+                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ task.title }}</h5>
+                                <small class="text-muted">Created: {{ task.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatewords:30 }}</p>
+                            <small>
+                                Assigned to: {{ task.assigned_to.get_full_name }}
+                                <span class="badge bg-{{ task.get_status_display|lower }} ms-2">
+                                    {{ task.get_status_display }}
+                                </span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No tasks created.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspaces Section -->
+        <div class="col-md-4">
+            <!-- Owned Workspaces -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">My Workspaces</h4>
+                </div>
+                <div class="card-body">
+                    {% if owned_workspaces %}
+                    <div class="list-group">
+                        {% for workspace in owned_workspaces %}
+                        <a href="{% url 'workspace_detail' workspace.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ workspace.name }}</h5>
+                                <small class="badge bg-success">Owner</small>
+                            </div>
+                            <p class="mb-1">{{ workspace.description|truncatewords:20 }}</p>
+                            <small>Members: {{ workspace.members.count }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No workspaces owned.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Member Workspaces -->
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h4 class="card-title mb-0">Member Workspaces</h4>
+                </div>
+                <div class="card-body">
+                    {% if member_workspaces %}
+                    <div class="list-group">
+                        {% for workspace in member_workspaces %}
+                        <a href="{% url 'workspace_detail' workspace.pk %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ workspace.name }}</h5>
+                                <small class="badge bg-info">Member</small>
+                            </div>
+                            <p class="mb-1">{{ workspace.description|truncatewords:20 }}</p>
+                            <small>Owner: {{ workspace.owner.get_full_name }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No workspace memberships.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

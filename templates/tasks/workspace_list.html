@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}My Workspaces - Task Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>My Workspaces</h2>
+    <div class="mb-3">
+        <a href="{% url 'workspace_create' %}" class="btn btn-primary">Create New Workspace</a>
+    </div>
+    <div class="card shadow">
+        <div class="card-body">
+            {% if workspaces %}
+            <ul class="list-group">
+                {% for workspace in workspaces %}
+                <li class="list-group-item">
+                    <a href="{% url 'workspace_detail' workspace.pk %}" class="text-decoration-none">
+                        {{ workspace.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No workspaces available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

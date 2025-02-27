@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} - Task Detail{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ task.title }}</h2>
+    <p>{{ task.description }}</p>
+    <p><strong>Status:</strong> {{ task.get_status_display }}</p>
+    <p><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+    <p><strong>Due Date:</strong> {{ task.due_date|date:"M d, Y" }}</p>
+    <p><strong>Assigned To:</strong> {{ task.assigned_to.username }}</p>
+    <p><strong>Created By:</strong> {{ task.created_by.username }}</p>
+    <a href="{% url 'task_update' task.pk %}" class="btn btn-warning">Edit Task</a>
+    <form method="post" action="{% url 'task_delete' task.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete Task</button>
+    </form>
+</div>
+{% endblock %}

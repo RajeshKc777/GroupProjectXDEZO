@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - Task Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Create an Account</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.username|crispy }}
+                            {{ form.email|crispy }}
+                            {{ form.role|crispy }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.first_name|crispy }}
+                            {{ form.last_name|crispy }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.password1|crispy }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.password2|crispy }}
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+                <hr class="my-4">
+                <div class="text-center">
+                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Add custom validation and UI enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const password1 = document.getElementById('id_password1');
+        const password2 = document.getElementById('id_password2');
+
+        // Password match validation
+        function validatePasswords() {
+            if (password1.value !== password2.value) {
+                password2.setCustomValidity("Passwords don't match");
+            } else {
+                password2.setCustomValidity('');
+            }
+        }
+
+        if (password1 && password2) {
+            password1.addEventListener('change', validatePasswords);
+            password2.addEventListener('keyup', validatePasswords);
+        }
+
+        // Form submission handling
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
